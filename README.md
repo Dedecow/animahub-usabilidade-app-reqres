@@ -24,7 +24,6 @@ O template disponibilizado utiliza React e Vite, enquanto o serviço de usuário
 - Cadastro com nome completo e e-mail.
 - Edição dos dados de um estudante.
 - Exclusão de registros com confirmação.
-- Indicadores de carregamento e mensagens de erro.
 
 A busca deverá ser implementada conforme os recursos disponíveis na API. Caso não exista filtro por nome no endpoint utilizado, a interface deverá explicitar o alcance da filtragem local.
 
@@ -41,50 +40,17 @@ O serviço fornecido define a URL-base `https://reqres.in/api` e as seguintes op
 
 Os usuários retornados pela API serão representados como estudantes na interface. A autenticação exigida pelo serviço, os filtros disponíveis e a persistência das alterações devem ser validados antes da conclusão da integração.
 
-## Arquitetura proposta
-
-```text
-src/
-├── components/
-│   ├── StudentList.jsx
-│   ├── StudentForm.jsx
-│   └── StudentAvatar.jsx
-├── hooks/
-│   └── useStudents.js
-├── services/
-│   └── userService.js
-├── App.jsx
-└── main.jsx
-```
-
-A estrutura acima é uma proposta de organização:
-
+## Arquitetura
 - `components`: apresentação dos dados e interação com o usuário.
 - `hooks`: gerenciamento de estado e coordenação das operações.
 - `services`: comunicação HTTP com a API.
 - `App.jsx`: composição da aplicação e fornecimento das dependências.
 
-As funções do serviço deverão ser recebidas explicitamente por props ou como dependência do hook, evitando que os componentes visuais concentrem a lógica de requisição.
-
-## Fluxo de funcionamento
-
-1. Carregar a página de estudantes solicitada.
-2. Armazenar os dados e as informações de paginação no estado.
-3. Renderizar a lista e os controles de interação.
-4. Validar os campos antes de cadastrar ou editar.
-5. Executar a operação correspondente no serviço.
-6. Atualizar o estado da interface após uma resposta bem-sucedida.
-7. Exibir mensagens de erro quando a operação falhar.
-
-A atualização visual da lista e a persistência no servidor deverão ser verificadas separadamente.
 
 ## Pendências técnicas
 
-- Corrigir o fechamento de blocos e funções em `userService.js`, pois o arquivo fornecido apresenta chaves ausentes. 
+- Corrigir o fechamento de blocos e funções em `userService.js`,  o arquivo fornecido apresenta chaves ausentes?
 - Validar os requisitos de acesso à API.
-- Definir a estratégia de busca por nome.
-- Verificar o comportamento das alterações após uma nova consulta.
-- Documentar os comandos de instalação, execução e build após conferir o `package.json`.
 
 ## Evoluções previstas — V2
 
