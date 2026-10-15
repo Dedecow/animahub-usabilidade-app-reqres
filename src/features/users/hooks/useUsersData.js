@@ -23,8 +23,10 @@ export function useUsersData() {
       const newUser = await userService.createUser(userData);
       // O Reqres simula a criação, mas não guarda no backend. Adicionamos localmente para refletir na interface.
       setUsers((prev) => [{ ...userData, id: newUser.id, avatar: 'https://reqres.in/img/faces/1-image.jpg' }, ...prev]);
+      return true;
     } catch (err) {
       setError(err.message);
+      return false;
     }
   };
 
@@ -32,8 +34,10 @@ export function useUsersData() {
     try {
       await userService.updateUser(id, userData);
       setUsers((prev) => prev.map(u => (u.id === id ? { ...u, ...userData } : u)));
+      return true;
     } catch (err) {
       setError(err.message);
+      return false;
     }
   };
 
@@ -41,8 +45,10 @@ export function useUsersData() {
     try {
       await userService.deleteUser(id);
       setUsers((prev) => prev.filter(u => u.id !== id));
+      return true;
     } catch (err) {
       setError(err.message);
+      return false;
     }
   };
 

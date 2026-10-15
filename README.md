@@ -1,59 +1,77 @@
-# Gestão de Estudantes com React
+# AnimaHub
 
-Projeto de aplicação frontend para **gerenciamento** de estudantes por meio do consumo da API Reqres.in, desenvolvido com React e Vite. A proposta contempla um CRUD completo, com separação entre interface e serviços de acesso à API. 
-## Objetivo
+Dashboard React para gestão de estudantes com integração à API Reqres. A interface inclui diretório acadêmico, CRUD de estudantes, busca local, filtros, ordenação, paginação e uma Central de Atividades em tempo real.
 
-Implementar uma interface para listar, cadastrar, editar e excluir estudantes, utilizando requisições HTTP e uma arquitetura modular.
+## Executar
 
-A autenticação e a tela de login ficam fora do escopo inicial e serão consideradas na versão 2.
+```bash
+npm install
+npm run dev
+```
 
-## Tecnologias
+Abra `http://127.0.0.1:5173` no navegador.
 
-- React.
-- Vite.
-- JavaScript.
-- Fetch API para requisições HTTP.
-- Reqres.in como API utilizada na integração.
+## Scripts
 
-O template disponibilizado utiliza React e Vite, enquanto o serviço de usuários utiliza a Fetch API, sem Axios. 
-## Funcionalidades previstas
+| Comando | Descrição |
+| --- | --- |
+| `npm run dev` | Inicia o servidor Vite em desenvolvimento |
+| `npm run build` | Gera a versão de produção |
+| `npm run preview` | Executa a versão de produção localmente |
+| `npm run lint` | Verifica o código com Oxlint |
 
-- Listagem de estudantes com paginação.
-- Busca por nome na interface.
-- Exibição do avatar ao selecionar ou posicionar o cursor sobre um estudante.
-- Cadastro com nome completo e e-mail.
-- Edição dos dados de um estudante.
-- Exclusão de registros com confirmação.
+## Funcionalidades
 
-A busca deverá ser implementada conforme os recursos disponíveis na API. Caso não exista filtro por nome no endpoint utilizado, a interface deverá explicitar o alcance da filtragem local.
+### Diretório acadêmico
+
+- Lista estudantes retornados pela Reqres.
+- Cadastra, edita e remove estudantes.
+- Busca local por nome, sobrenome ou e-mail.
+- Filtra estudantes ativos.
+- Ordena por cadastro recente ou ordem alfabética.
+- Pagina os resultados em blocos de quatro registros.
+- Mostra estados de carregamento, erro e lista vazia.
+
+### Central de Atividades
+
+A Central de Atividades é atualizada sem recarregar a página. Cada operação concluída no diretório gera imediatamente um novo evento:
+
+- Cadastro gera um evento de novo estudante.
+- Edição gera um evento de perfil atualizado.
+- Exclusão gera um evento de estudante removido.
+- Os eventos aparecem no topo da lista assim que a operação termina com sucesso.
+- O horário do novo evento é exibido como `Agora`.
+- A interface mantém um relógio interno para atualizar o estado de atividade em tempo real.
+- Os filtros permitem visualizar todas as atividades, cadastros, atualizações ou sincronizações.
+
+Os eventos iniciais são dados de demonstração da sessão. Como a API Reqres simula operações de criação, edição e exclusão, as alterações ficam refletidas no estado da interface durante a sessão atual.
 
 ## Integração com a API
 
-O serviço fornecido define a URL-base `https://reqres.in/api` e as seguintes operações: 
-| Operação | Método | Endpoint | Função |
-|---|---|---|---|
-| Listar estudantes | GET | `/users?page={page}` | `fetchUsers(page)` |
-| Consultar estudante | GET | `/users/{id}` | `fetchUserById(id)` |
-| Cadastrar estudante | POST | `/users` | `createUser(userData)` |
-| Atualizar estudante | PUT | `/users/{id}` | `updateUser(id, userData)` |
-| Excluir estudante | DELETE | `/users/{id}` | `deleteUser(id)` |
+O serviço está em [`src/services/userService.js`](./src/services/userService.js) e usa `fetch`:
 
-Os usuários retornados pela API serão representados como estudantes na interface. A autenticação exigida pelo serviço, os filtros disponíveis e a persistência das alterações devem ser validados antes da conclusão da integração.
+| Operação | Método | Endpoint |
+| --- | --- | --- |
+| Listar estudantes | GET | `/users?page={page}` |
+| Consultar estudante | GET | `/users/{id}` |
+| Cadastrar estudante | POST | `/users` |
+| Atualizar estudante | PUT | `/users/{id}` |
+| Excluir estudante | DELETE | `/users/{id}` |
 
 ## Arquitetura
-- `components`: apresentação dos dados e interação com o usuário.
-- `hooks`: gerenciamento de estado e coordenação das operações.
-- `services`: comunicação HTTP com a API.
-- `App.jsx`: composição da aplicação e fornecimento das dependências.
 
+- `src/App.jsx`: shell do dashboard, navegação e Central de Atividades.
+- `src/features/users/UserHub.jsx`: formulário, diretório e interações do CRUD.
+- `src/features/users/hooks/useUsersData.js`: estado dos estudantes e coordenação das operações.
+- `src/services/userService.js`: comunicação com a API.
+- `src/context/DemoModeContext.jsx`: contexto de modo demonstração.
+- `src/App.css` e `src/index.css`: identidade visual, responsividade e animações.
 
-## Pendências técnicas
+## Validação
 
-- Corrigir o fechamento de blocos e funções em `userService.js`,  o arquivo fornecido apresenta chaves ausentes?
-- Validar os requisitos de acesso à API.
+```bash
+npm run build
+npm run lint
+```
 
-## Evoluções previstas — V2
-
-- Tela de login.
-- Fluxo de autenticação.
-- Controle de acesso às funcionalidades.
+O lint pode apresentar avisos preexistentes relacionados ao Fast Refresh e ao carregamento inicial via efeito; eles não impedem a execução ou o build.

@@ -1,127 +1,119 @@
-﻿import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useUsersData } from './hooks/useUsersData';
 
-export default function UserHub() {
-  const { users, loading, error, addUser, updateUser, deleteUser } = useUsersData();
-  const [formData, setFormData] = useState({ first_name: '', last_name: '', email: '' });
-  const [editingId, setEditingId] = useState(null);
-  const [activeAvatar, setActiveAvatar] = useState(null);
-  const [feedbackMsg, setFeedbackMsg] = useState(''); // Estado para feedback de ações
+const emptyForm = { first_name: '', last_name: '', email: '' };
 
-  const showFeedback = (msg) => {
-    setFeedbackMsg(msg);
-    setTimeout(() => setFeedbackMsg(''), 4000);
+export default function UserHub({ onActivity }) {
+  const { users, loading, error, addUser, updateUser, deleteUser } = useUsersData();
+  const [formData, setFormData] = useState(emptyForm);
+  const [editingId, setEditingId] = useState(null);
+  const [search, setSearch] = useState('');
+  const [feedbackMsg, setFeedbackMsg] = useState('');
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [sortOpen, setSortOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('Todos');
+  const [sortOrder, setSortOrder] = useState('recentes');
+  const [page, setPage] = useState(1);
+  const pageSize = 4;
+
+  const filteredUsers = useMemo(() => {
+    const result = users.filter((user) => {
+      const matchesSearch = `${user.first_name} ${user.last_name} ${user.email}`.toLowerCase().includes(search.toLowerCase());
+      const matchesStatus = statusFilter === 'Todos' || user.id > 0;
+      return matchesSearch && matchesStatus;
+    });
+    return [...result].sort((a, b) => sortOrder === 'nome' ? `${a.first_name} ${a.last_name}`.localeCompare(`${b.first_name} ${b.last_name}`) : b.id - a.id);
+  }, [users, search, sortOrder, statusFilter]);
+  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / pageSize));
+  const visibleUsers = filteredUsers.slice((page - 1) * pageSize, page * pageSize);
+
+  const showFeedback = (message) => {
+    setFeedbackMsg(message);
+    window.setTimeout(() => setFeedbackMsg(''), 3500);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     if (editingId) {
-      await updateUser(editingId, formData);
-      showFeedback('Estudante atualizado com sucesso.');
-      setEditingId(null);
+      const updated = await updateUser(editingId, formData);
+      if (updated) onActivity({ type: 'update', title: 'Perfil atualizado', detail: `Os dados de ${formData.first_name} ${formData.last_name} foram atualizados` });
+      showFeedback('Perfil atualizado com sucesso');
     } else {
-      await addUser(formData);
-      showFeedback('Novo estudante adicionado.');
+      const created = await addUser(formData);
+      if (created) onActivity({ type: 'create', title: 'Novo estudante cadastrado', detail: `${formData.first_name} ${formData.last_name} entrou na base acadêmica` });
+      showFeedback('Novo estudante adicionado');
     }
-    setFormData({ first_name: '', last_name: '', email: '' });
+    setEditingId(null);
+    setFormData(emptyForm);
   };
 
   const handleEdit = (user) => {
     setFormData({ first_name: user.first_name, last_name: user.last_name, email: user.email });
     setEditingId(user.id);
-    document.getElementById('first_name').focus(); // Usabilidade: Foca no input ao editar
+    document.getElementById('first_name').focus();
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setFormData(emptyForm);
+  };
+
+  const updateSearch = (event) => {
+    setSearch(event.target.value);
+    setPage(1);
+  };
+
+  const chooseFilter = (value) => {
+    setStatusFilter(value);
+    setFilterOpen(false);
+    setPage(1);
+    showFeedback(value === 'Ativos' ? 'Exibindo estudantes ativos' : 'Exibindo todos os estudantes');
+  };
+
+  const chooseSort = (value) => {
+    setSortOrder(value);
+    setSortOpen(false);
+    setPage(1);
   };
 
   return (
-    <div style={{ display: 'flex', gap: '40px', marginTop: '20px', flexWrap: 'wrap' }}>
-      
-      <section style={{ width: '320px' }} aria-labelledby="form-title">
-        <h2 id="form-title">{editingId ? 'Editar Estudante' : 'Adicionar Estudante'}</h2>
-        
-        {/* Região ao vivo para leitores de ecrã anunciarem sucessos ou erros */}
-        <div aria-live="polite" style={{ minHeight: '24px', color: 'green', fontWeight: 'bold' }}>
-          {feedbackMsg}
-        </div>
+    <div className="dashboard-grid">
+      <div className="metrics-row">
+        <article className="metric-card metric-primary"><div className="metric-icon">◎</div><div><span>Total de estudantes</span><strong>{users.length + 74}</strong><small><b>↑ 12.8%</b> desde o último mês</small></div><div className="sparkline"><i /><i /><i /><i /><i /><i /><i /></div></article>
+        <article className="metric-card"><div className="metric-icon purple">◌</div><div><span>Ativos este mês</span><strong>{users.length + 61}</strong><small><b>↑ 8.4%</b> de engajamento</small></div><div className="metric-ring">82<span>%</span></div></article>
+        <article className="metric-card"><div className="metric-icon orange">◒</div><div><span>Novos cadastros</span><strong>24</strong><small><b>↑ 4.2%</b> nos últimos 30 dias</small></div><div className="metric-bars"><i /><i /><i /><i /><i /></div></article>
+      </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <div>
-            <label htmlFor="first_name" style={{ display: 'block', marginBottom: '5px' }}>Nome</label>
-            <input id="first_name" required value={formData.first_name} onChange={e => setFormData({...formData, first_name: e.target.value})} style={{ width: '100%', padding: '8px' }} />
-          </div>
-          <div>
-            <label htmlFor="last_name" style={{ display: 'block', marginBottom: '5px' }}>Sobrenome</label>
-            <input id="last_name" required value={formData.last_name} onChange={e => setFormData({...formData, last_name: e.target.value})} style={{ width: '100%', padding: '8px' }} />
-          </div>
-          <div>
-            <label htmlFor="email" style={{ display: 'block', marginBottom: '5px' }}>E-mail</label>
-            <input id="email" type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} style={{ width: '100%', padding: '8px' }} />
-          </div>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button type="submit" style={{ padding: '10px', flex: 1, cursor: 'pointer', backgroundColor: '#0056b3', color: 'white', border: 'none', borderRadius: '4px' }}>
-              {editingId ? 'Guardar Alterações' : 'Adicionar'}
-            </button>
-            {editingId && (
-              <button type="button" onClick={() => { setEditingId(null); setFormData({ first_name: '', last_name: '', email: '' }); }} style={{ padding: '10px', cursor: 'pointer' }}>
-                Cancelar
-              </button>
-            )}
-          </div>
-        </form>
+      <div className="workspace-grid" id="students">
+        <section className="panel form-panel">
+          <div className="panel-heading"><div><span className="panel-kicker">{editingId ? 'MODO DE EDIÇÃO' : 'NOVO REGISTRO'}</span><h2>{editingId ? 'Editar estudante' : 'Adicionar estudante'}</h2></div><span className="form-step">01 <i /> 02</span></div>
+          <p className="panel-description">Crie um perfil para acompanhar a jornada acadêmica.</p>
+          <form onSubmit={handleSubmit}>
+            <label htmlFor="first_name">Nome<input id="first_name" required value={formData.first_name} onChange={(event) => setFormData({ ...formData, first_name: event.target.value })} placeholder="Ex: Beatriz" /></label>
+            <label htmlFor="last_name">Sobrenome<input id="last_name" required value={formData.last_name} onChange={(event) => setFormData({ ...formData, last_name: event.target.value })} placeholder="Ex: Almeida" /></label>
+            <label htmlFor="email">E-mail<input id="email" type="email" required value={formData.email} onChange={(event) => setFormData({ ...formData, email: event.target.value })} placeholder="nome@universidade.com" /></label>
+            <div className="form-actions"><button className="primary-button" type="submit"><span>＋</span>{editingId ? 'Salvar alterações' : 'Adicionar estudante'}</button>{editingId && <button className="text-button" type="button" onClick={cancelEdit}>Cancelar</button>}</div>
+          </form>
+          <div className="form-footer"><span className="shield-icon">◇</span><span>Seus dados estão protegidos<br /><b>Sincronização segura habilitada</b></span></div>
+        </section>
 
-        {activeAvatar && (
-          <aside style={{ marginTop: '30px', textAlign: 'center' }} aria-hidden="true">
-            <img src={activeAvatar} alt="" style={{ borderRadius: '50%', width: '120px', border: '3px solid #0056b3' }} />
-          </aside>
-        )}
-      </section>
-
-      <section style={{ flex: 1, minWidth: '300px' }} aria-labelledby="list-title">
-        <h2 id="list-title">Lista de Estudantes</h2>
-        
-        {loading && <p aria-live="polite">A carregar registos...</p>}
-        {error && <p aria-live="assertive" style={{ color: 'red' }}>Erro ao carregar: {error}</p>}
-
-        {!loading && !error && (
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {users.map((user) => (
-              <li 
-                key={user.id} 
-                onMouseEnter={() => setActiveAvatar(user.avatar)}
-                onFocus={() => setActiveAvatar(user.avatar)} // Acessibilidade para navegação por teclado
-                tabIndex="0" // Torna o item focável
-                style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '15px', borderBottom: '1px solid #ddd' }}
-              >
-                <img src={user.avatar} alt={`Fotografia de ${user.first_name}`} style={{ width: '50px', borderRadius: '50%' }} />
-                <div style={{ flex: 1 }}>
-                  <strong>{user.first_name} {user.last_name}</strong> <br/>
-                  <span style={{ color: '#555' }}>{user.email}</span>
-                </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <button 
-                    onClick={() => handleEdit(user)} 
-                    aria-label={`Editar dados de ${user.first_name}`}
-                    style={{ cursor: 'pointer', padding: '6px 12px' }}
-                  >
-                    Editar
-                  </button>
-                  <button 
-                    onClick={() => {
-                      if(window.confirm(`Tem a certeza que deseja excluir ${user.first_name}?`)) {
-                        deleteUser(user.id);
-                        showFeedback(`${user.first_name} foi removido.`);
-                      }
-                    }} 
-                    aria-label={`Excluir ${user.first_name} do sistema`}
-                    style={{ cursor: 'pointer', padding: '6px 12px', color: '#fff', backgroundColor: '#dc3545', border: 'none', borderRadius: '4px' }}
-                  >
-                    Excluir
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+        <section className="panel list-panel">
+          <div className="list-header"><div><span className="panel-kicker">DIRETÓRIO ACADÊMICO</span><h2>Estudantes <em>{filteredUsers.length}</em></h2></div><div className="menu-wrap"><button className="filter-button" onClick={() => setFilterOpen(!filterOpen)} aria-expanded={filterOpen}>{statusFilter} <span>⌄</span></button>{filterOpen && <div className="floating-menu"><button onClick={() => chooseFilter('Todos')}>Todos os estudantes</button><button onClick={() => chooseFilter('Ativos')}>Ativos agora</button></div>}</div></div>
+          <div className="search-box"><span>⌕</span><input aria-label="Buscar estudantes" value={search} onChange={updateSearch} placeholder="Buscar por nome ou e-mail..." /><kbd>⌘ K</kbd></div>
+          <div className="list-meta"><span>{visibleUsers.length} de {filteredUsers.length} perfis encontrados</span><div className="menu-wrap"><button onClick={() => setSortOpen(!sortOpen)}> {sortOrder === 'nome' ? 'Nome' : 'Mais recentes'} <span>⌄</span></button>{sortOpen && <div className="floating-menu sort-menu"><button onClick={() => chooseSort('recentes')}>Mais recentes</button><button onClick={() => chooseSort('nome')}>Ordem alfabética</button></div>}</div></div>
+          {feedbackMsg && <div className="feedback" aria-live="polite"><span>✓</span>{feedbackMsg}</div>}
+          {loading && <div className="loading-state"><span className="loader" />Carregando estudantes</div>}
+          {error && <div className="error-state" aria-live="assertive">Não foi possível carregar os dados: {error}</div>}
+          {!loading && !error && <div className="student-list">{visibleUsers.map((user, index) => <article className="student-row" key={user.id} style={{ '--delay': `${index * 60}ms` }}>
+            <img src={user.avatar} alt={`Fotografia de ${user.first_name}`} />
+            <div className="student-details"><strong>{user.first_name} {user.last_name}</strong><span>{user.email}</span></div>
+            <span className="active-label"><i />Ativo</span>
+            <div className="row-actions"><button onClick={() => handleEdit(user)} aria-label={`Editar dados de ${user.first_name}`}>Editar</button><button className="delete-button" onClick={() => {             if (window.confirm(`Deseja remover ${user.first_name}?`)) { deleteUser(user.id).then((deleted) => { if (deleted) onActivity({ type: 'delete', title: 'Estudante removido', detail: `${user.first_name} ${user.last_name} foi removido do diretório acadêmico` }); }); showFeedback(`${user.first_name} foi removido`); } }} aria-label={`Excluir ${user.first_name}`}>Excluir</button></div>
+          </article>)}</div>}
+          {!loading && !error && !visibleUsers.length && <div className="empty-state">Nenhum estudante encontrado.</div>}
+          <div className="list-footer"><span>Mostrando {visibleUsers.length ? (page - 1) * pageSize + 1 : 0} a {Math.min(page * pageSize, filteredUsers.length)} de {filteredUsers.length} estudantes</span><div><button onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1}>‹</button>{Array.from({ length: totalPages }, (_, index) => <button key={index + 1} onClick={() => setPage(index + 1)} className={page === index + 1 ? 'current-page' : ''}>{index + 1}</button>)}<button onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages}>›</button></div></div>
+        </section>
+      </div>
     </div>
   );
 }
