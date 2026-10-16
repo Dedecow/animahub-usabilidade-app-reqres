@@ -1,13 +1,85 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
 
-:root { font-family: 'Manrope', sans-serif; color: #f5f6fa; background: #0e0f15; font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
-* { box-sizing: border-box; }
-html, body { margin: 0; min-width: 320px; min-height: 100%; background: #0e0f15; }
-body { overflow-x: hidden; }
-html { scrollbar-color: #4c4562 #111219; scrollbar-width: thin; }
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-track { background: #111219; }
-::-webkit-scrollbar-thumb { border: 2px solid #111219; border-radius: 10px; background: #4c4562; }
-button, input { font: inherit; }
-button { cursor: pointer; }
-#root { width: 100%; min-height: 100vh; background: #0e0f15; }
+:root {
+  font-family: 'Manrope', sans-serif;
+  color: var(--color-text);
+  background: var(--color-canvas);
+  color-scheme: dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --color-canvas: #0e0f15;
+  --color-surface: #111219;
+  --color-panel: #181922;
+  --color-text: #f5f6fa;
+  --color-text-muted: #b4b7c5;
+  --color-border: #777a8a;
+  --color-focus: #ffec6e;
+  --color-accent: #a98aff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-width: 20rem;
+  min-height: 100%;
+  background: var(--color-canvas);
+}
+
+body {
+  overflow-x: hidden;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+}
+
+html {
+  scrollbar-color: #4c4562 var(--color-surface);
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 0.625rem;
+  height: 0.625rem;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  border: 0.125rem solid var(--color-surface);
+  border-radius: 0.625rem;
+  background: #4c4562;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--color-canvas);
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --color-canvas: #000;
+    --color-surface: #000;
+    --color-panel: #000;
+    --color-text: #fff;
+    --color-text-muted: #fff;
+    --color-border: #fff;
+    --color-focus: #ff0;
+    --color-accent: #ff0;
+  }
+}

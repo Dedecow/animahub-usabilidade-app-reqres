@@ -32,15 +32,15 @@ function ActivityCenter({ activities, onNavigate }) {
   }, []);
 
   return (
-    <section className="activity-center" id="activity">
+    <section className="activity-center" id="activity" aria-labelledby="activity-title">
       <div className="activity-heading">
-        <div><span className="panel-kicker">CENTRAL DE ATIVIDADES</span><h2>O que está acontecendo</h2><p>Acompanhe as movimentações recentes da sua comunidade acadêmica.</p></div>
-        <span className="activity-live"><i />{lastUpdated ? 'Atualizado em tempo real' : 'Atualizado agora'}</span>
+        <div><span className="panel-kicker">CENTRAL DE ATIVIDADES</span><h2 id="activity-title">O que está acontecendo</h2><p>Acompanhe as movimentações recentes da sua comunidade acadêmica.</p></div>
+        <span className="activity-live"><i aria-hidden="true" />{lastUpdated ? 'Atualizado em tempo real' : 'Atualizado agora'}</span>
       </div>
-      <div className="activity-toolbar">{filters.map((item) => <button key={item.key} className={filter === item.key ? 'selected' : ''} onClick={() => setFilter(item.key)}>{item.label}</button>)}</div>
-      <div className="activity-list">{filteredItems.map((item) => <article className={`activity-item activity-${item.type}`} key={item.id}><span className="activity-icon">{item.icon}</span><div><strong>{item.title}</strong><p>{item.detail}</p></div><time>{item.time}</time></article>)}</div>
-      {!filteredItems.length && <div className="activity-empty">Nenhuma atividade nesta categoria.</div>}
-      <div className="activity-footer"><span>Exibindo as últimas movimentações</span><button onClick={() => onNavigate('students')}>Ir para estudantes <b>→</b></button></div>
+      <div className="activity-toolbar" role="group" aria-label="Filtrar atividades">{filters.map((item) => <button key={item.key} type="button" aria-pressed={filter === item.key} className={filter === item.key ? 'selected' : ''} onClick={() => setFilter(item.key)}>{item.label}</button>)}</div>
+      <div className="activity-list" aria-live="polite" aria-relevant="additions text">{filteredItems.map((item) => <article className={`activity-item activity-${item.type}`} key={item.id}><span className="activity-icon" aria-hidden="true">{item.icon}</span><div><strong>{item.title}</strong><p>{item.detail}</p></div><time>{item.time}</time></article>)}</div>
+      {!filteredItems.length && <div className="activity-empty" role="status">Nenhuma atividade nesta categoria.</div>}
+      <div className="activity-footer"><span>Exibindo as últimas movimentações</span><button type="button" onClick={() => onNavigate('students')}>Ir para estudantes <b aria-hidden="true">→</b></button></div>
     </section>
   );
 }
@@ -49,6 +49,7 @@ export default function App() {
   const [activeSection, setActiveSection] = useState('overview');
   const [notice, setNotice] = useState('');
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [readingMode, setReadingMode] = useState(false);
   const [activities, setActivities] = useState(initialActivityItems);
 
   const showNotice = (message) => {
@@ -62,8 +63,9 @@ export default function App() {
 
   return (
     <DemoModeProvider>
-      <div className="app-shell">
-        <aside className="sidebar">
+      <div className={`app-shell${readingMode ? ' reading-mode' : ''}`}>
+        <a className="skip-link" href="#main-content">Pular para o conteúdo principal</a>
+        <aside className="sidebar" aria-label="Barra lateral">
           <div className="brand">
             <BrandMark />
             <div>
@@ -73,39 +75,40 @@ export default function App() {
           </div>
 
           <nav className="main-nav" aria-label="Navegação principal">
-            <a className={`nav-item ${activeSection === 'overview' ? 'active' : ''}`} href="#overview" onClick={() => setActiveSection('overview')}><span className="nav-icon">◈</span>Visão geral</a>
-            <a className={`nav-item ${activeSection === 'students' ? 'active' : ''}`} href="#students" onClick={() => setActiveSection('students')}><span className="nav-icon">◎</span>Estudantes</a>
-            <a className={`nav-item ${activeSection === 'activity' ? 'active' : ''}`} href="#activity" onClick={(event) => { event.preventDefault(); setActiveSection('activity'); }}><span className="nav-icon">◒</span>Atividade</a>
+            <a className={`nav-item ${activeSection === 'overview' ? 'active' : ''}`} href="#overview" aria-label="Visão geral" aria-current={activeSection === 'overview' ? 'page' : undefined} onClick={() => setActiveSection('overview')}><span className="nav-icon" aria-hidden="true">◈</span>Visão geral</a>
+            <a className={`nav-item ${activeSection === 'students' ? 'active' : ''}`} href="#students" aria-label="Estudantes" aria-current={activeSection === 'students' ? 'page' : undefined} onClick={() => setActiveSection('students')}><span className="nav-icon" aria-hidden="true">◎</span>Estudantes</a>
+            <a className={`nav-item ${activeSection === 'activity' ? 'active' : ''}`} href="#activity" aria-label="Atividade" aria-current={activeSection === 'activity' ? 'page' : undefined} onClick={(event) => { event.preventDefault(); setActiveSection('activity'); }}><span className="nav-icon" aria-hidden="true">◒</span>Atividade</a>
           </nav>
 
           <div className="sidebar-bottom">
             <div className="status-card">
-              <span className="status-pulse" />
+              <span className="status-pulse" aria-hidden="true" />
               <div><strong>Base conectada</strong><small>Reqres API online</small></div>
             </div>
-            <div className="user-badge"><span>ES</span><div><strong>Estudantes</strong><small>Administrador</small></div><b>•••</b></div>
+            <div className="user-badge"><span aria-hidden="true">ES</span><div><strong>Estudantes</strong><small>Administrador</small></div><b aria-hidden="true">•••</b></div>
           </div>
         </aside>
 
-        <main className="content-area">
+        <main className="content-area" id="main-content" tabIndex="-1">
           <header className="topbar">
             <div className="breadcrumb"><span>Workspace</span><b>/</b><strong>Visão geral</strong></div>
             <div className="top-actions">
+              <button className="reading-mode-toggle" type="button" aria-pressed={readingMode} onClick={() => setReadingMode((enabled) => !enabled)}>Modo de leitura</button>
               <div className="notification-wrap">
-                <button className={`icon-button ${notificationsOpen ? 'is-open' : ''}`} onClick={() => setNotificationsOpen(!notificationsOpen)} aria-label="Abrir notificações" aria-expanded={notificationsOpen}>
+                <button className={`icon-button ${notificationsOpen ? 'is-open' : ''}`} onClick={() => setNotificationsOpen(!notificationsOpen)} aria-label="Abrir notificações" aria-expanded={notificationsOpen} aria-controls={notificationsOpen ? 'notification-panel' : undefined}>
                   <span className="bell-surface">
                     <svg className="bell-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg>
                   </span>
                 </button>
-                {notificationsOpen && <div className="notification-panel" role="status"><span className="notification-panel-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg></span><strong>Nenhuma notificação</strong><p>Você está em dia por aqui.</p></div>}
+                {notificationsOpen && <div className="notification-panel" id="notification-panel" role="status"><span className="notification-panel-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg></span><strong>Nenhuma notificação</strong><p>Você está em dia por aqui.</p></div>}
               </div>
               <button className="avatar-button" onClick={() => showNotice('Perfil de Estudantes')} aria-label="Abrir perfil">ES</button>
             </div>
           </header>
-          <section className="page-content" id="overview">
+          <section className="page-content" id="overview" aria-labelledby="page-title">
             <div className="welcome-row">
-              <div><h1>{activeSection === 'activity' ? 'Atividade' : 'Estudantes'} <span>✦</span></h1><p className="subtitle">{activeSection === 'activity' ? 'Acompanhe as movimentações da sua comunidade acadêmica.' : 'Acompanhe o pulso da sua comunidade acadêmica.'}</p></div>
-              <div className="live-chip"><span className="status-pulse" />Dados sincronizados agora</div>
+              <div><h1 id="page-title">{activeSection === 'activity' ? 'Atividade' : 'Estudantes'} <span aria-hidden="true">✦</span></h1><p className="subtitle">{activeSection === 'activity' ? 'Acompanhe as movimentações da sua comunidade acadêmica.' : 'Acompanhe o pulso da sua comunidade acadêmica.'}</p></div>
+              <div className="live-chip"><span className="status-pulse" aria-hidden="true" />Dados sincronizados agora</div>
             </div>
             {activeSection === 'activity' ? <ActivityCenter activities={activities} onNavigate={setActiveSection} /> : <UserHub onActivity={registerActivity} />}
           </section>
