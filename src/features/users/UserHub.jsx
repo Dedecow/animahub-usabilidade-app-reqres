@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { useUsersData } from './hooks/useUsersData';
 
-const emptyForm = { first_name: '', last_name: '', email: '' };
+const emptyForm = { first_name: '', last_name: '', email: '', idade: '' };
 
 export default function UserHub({ onActivity }) {
   const { users, loading, error, addUser, updateUser, deleteUser } = useUsersData();
@@ -50,7 +50,7 @@ export default function UserHub({ onActivity }) {
   };
 
   const handleEdit = (user) => {
-    setFormData({ first_name: user.first_name, last_name: user.last_name, email: user.email });
+    setFormData({ first_name: user.first_name, last_name: user.last_name, email: user.email, idade: user.idade });
     setEditingId(user.id);
     document.getElementById('first_name').focus();
   };
@@ -80,11 +80,12 @@ export default function UserHub({ onActivity }) {
     setPage(1);
   };
 
+  const newLocal = "metric-icon purple";
   return (
     <div className="dashboard-grid">
       <div className="metrics-row" role="region" aria-label="Resumo de estudantes">
         <article className="metric-card metric-primary"><div className="metric-icon" aria-hidden="true">◎</div><div><span>Total de estudantes</span><strong>{users.length + 74}</strong><small><b>↑ 12.8%</b> desde o último mês</small></div><div className="sparkline" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /></div></article>
-        <article className="metric-card"><div className="metric-icon purple" aria-hidden="true">◌</div><div><span>Ativos este mês</span><strong>{users.length + 61}</strong><small><b>↑ 8.4%</b> de engajamento</small></div><div className="metric-ring" role="img" aria-label="82 por cento">82<span aria-hidden="true">%</span></div></article>
+        <article className="metric-card"><div className={newLocal} aria-hidden="true">◌</div><div><span>Ativos este mês</span><strong>{users.length + 61}</strong><small><b>↑ 8.4%</b> de engajamento</small></div><div className="metric-ring" role="img" aria-label="82 por cento">82<span aria-hidden="true">%</span></div></article>
         <article className="metric-card"><div className="metric-icon orange" aria-hidden="true">◒</div><div><span>Novos cadastros</span><strong>24</strong><small><b>↑ 4.2%</b> nos últimos 30 dias</small></div><div className="metric-bars" aria-hidden="true"><i /><i /><i /><i /><i /></div></article>
       </div>
 
@@ -94,6 +95,7 @@ export default function UserHub({ onActivity }) {
           <p className="panel-description">Crie um perfil para acompanhar a jornada acadêmica.</p>
           <form onSubmit={handleSubmit}>
             <label htmlFor="first_name">Nome<input id="first_name" autoComplete="given-name" required value={formData.first_name} onChange={(event) => setFormData({ ...formData, first_name: event.target.value })} placeholder="Ex: Beatriz" /></label>
+            <label htmlFor="idade">Idade<input id="idade" type="number" required value={formData.idade} onChange={(event) => setFormData({ ...formData, idade: event.target.value })} placeholder="Ex: 22" /></label>
             <label htmlFor="last_name">Sobrenome<input id="last_name" autoComplete="family-name" required value={formData.last_name} onChange={(event) => setFormData({ ...formData, last_name: event.target.value })} placeholder="Ex: Almeida" /></label>
             <label htmlFor="email">E-mail<input id="email" type="email" autoComplete="email" required value={formData.email} onChange={(event) => setFormData({ ...formData, email: event.target.value })} placeholder="nome@universidade.com" /></label>
             <div className="form-actions"><button className="primary-button" type="submit"><span aria-hidden="true">＋</span>{editingId ? 'Salvar alterações' : 'Adicionar estudante'}</button>{editingId && <button className="text-button" type="button" onClick={cancelEdit}>Cancelar</button>}</div>
