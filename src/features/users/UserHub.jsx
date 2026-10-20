@@ -84,9 +84,9 @@ export default function UserHub({ onActivity }) {
   return (
     <div className="dashboard-grid">
       <div className="metrics-row" role="region" aria-label="Resumo de estudantes">
-        <article className="metric-card metric-primary"><div className="metric-icon" aria-hidden="true">◎</div><div><span>Total de estudantes</span><strong>{users.length + 74}</strong><small><b>↑ 12.8%</b> desde o último mês</small></div><div className="sparkline" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /></div></article>
-        <article className="metric-card"><div className={newLocal} aria-hidden="true">◌</div><div><span>Ativos este mês</span><strong>{users.length + 61}</strong><small><b>↑ 8.4%</b> de engajamento</small></div><div className="metric-ring" role="img" aria-label="82 por cento">82<span aria-hidden="true">%</span></div></article>
-        <article className="metric-card"><div className="metric-icon orange" aria-hidden="true">◒</div><div><span>Novos cadastros</span><strong>24</strong><small><b>↑ 4.2%</b> nos últimos 30 dias</small></div><div className="metric-bars" aria-hidden="true"><i /><i /><i /><i /><i /></div></article>
+        <article className="metric-card metric-primary"><div className="metric-icon" aria-hidden="true">◎</div><div><span>Total de estudantes</span><strong>{users.length}</strong><small><b>↑ 12.8%</b> desde o último mês</small></div><div className="sparkline" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /></div></article>
+        <article className="metric-card"><div className={newLocal} aria-hidden="true">◌</div><div><span>Ativos este mês</span><strong>{users.length}</strong><small><b>↑ 8.4%</b> de engajamento</small></div><div className="metric-ring" role="img" aria-label="82 por cento">82<span aria-hidden="true">%</span></div></article>
+        <article className="metric-card"><div className="metric-icon orange" aria-hidden="true">◒</div><div><span>Novos cadastros</span><strong>{users.length}</strong><small><b>↑ 4.2%</b> nos últimos 30 dias</small></div><div className="metric-bars" aria-hidden="true"><i /><i /><i /><i /><i /></div></article>
       </div>
 
       <div className="workspace-grid" id="students">
