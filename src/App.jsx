@@ -25,7 +25,7 @@ const initialActivityItems = [
 function ActivityCenter({ activities, onNavigate }) {
   const [filter, setFilter] = useState('all');
   const [lastUpdated, setLastUpdated] = useState(() => Date.now());
-  const filters = [{ key: 'all', label: 'Todas' }, { key: 'create', label: 'Cadastros' }, { key: 'update', label: 'Atualizações' }, { key: 'sync', label: 'Sincronizações' }];
+  const filters = [{ key: 'all', label: 'Todas' }, { key: 'create', label: 'Cadastros' }, { key: 'update', label: 'Atualizações' }, { key: 'delete', label: 'Exclusões' }, { key: 'sync', label: 'Sincronizações' }];
   const filteredItems = filter === 'all' ? activities : activities.filter((item) => item.type === filter);
 
   useEffect(() => {
@@ -126,7 +126,15 @@ export default function App() {
 )}
 
 {activeSection === 'students' && (
-  <UserHub onActivity={registerActivity} />
+  <UserHub
+    users={userData.users}
+    loading={userData.loading}
+    error={userData.error}
+    addUser={userData.addUser}
+    updateUser={userData.updateUser}
+    deleteUser={userData.deleteUser}
+    onActivity={registerActivity}
+  />
 )}
 
 {activeSection === 'activity' && (

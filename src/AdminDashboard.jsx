@@ -59,7 +59,7 @@ export default function AdminDashboard({
             ↻
           </div>
           <div>
-            <span>Atividades exibidas</span>
+            <span>Atividades registradas</span>
             <strong>{activities.length}</strong>
             <small>Eventos apresentados na central</small>
           </div>
