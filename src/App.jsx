@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { DemoModeProvider } from './context/DemoModeContext';
 import UserHub from './features/users/UserHub';
+import AdminDashboard from './AdminDashboard';
+import { useUsersData } from './features/users/hooks/useUsersData';
 import './App.css';
 
 function BrandMark() {
@@ -51,6 +53,7 @@ export default function App() {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [readingMode, setReadingMode] = useState(false);
   const [activities, setActivities] = useState(initialActivityItems);
+  const userData = useUsersData();
 
   const showNotice = (message) => {
     setNotice(message);
@@ -106,11 +109,32 @@ export default function App() {
             </div>
           </header>
           <section className="page-content" id="overview" aria-labelledby="page-title">
+            {activeSection !=='overview' && (
             <div className="welcome-row">
               <div><h1 id="page-title">{activeSection === 'activity' ? 'Atividade' : 'Estudantes'} <span aria-hidden="true">✦</span></h1><p className="subtitle">{activeSection === 'activity' ? 'Acompanhe as movimentações da sua comunidade acadêmica.' : 'Acompanhe o pulso da sua comunidade acadêmica.'}</p></div>
               <div className="live-chip"><span className="status-pulse" aria-hidden="true" />Dados sincronizados agora</div>
             </div>
-            {activeSection === 'activity' ? <ActivityCenter activities={activities} onNavigate={setActiveSection} /> : <UserHub onActivity={registerActivity} />}
+            )}
+            {activeSection === 'overview' && (
+  <AdminDashboard
+    users={userData.users}
+    loading={userData.loading}
+    error={userData.error}
+    activities={activities}
+    onNavigate={setActiveSection}
+  />
+)}
+
+{activeSection === 'students' && (
+  <UserHub onActivity={registerActivity} />
+)}
+
+{activeSection === 'activity' && (
+  <ActivityCenter
+    activities={activities}
+    onNavigate={setActiveSection}
+  />
+)}
           </section>
           {notice && <div className="global-notice" role="status">{notice}</div>}
         </main>
