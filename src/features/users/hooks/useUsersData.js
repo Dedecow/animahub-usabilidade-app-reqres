@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import * as userService from '../../../services/userService';
 
 export function useUsersData() {
@@ -22,7 +22,7 @@ export function useUsersData() {
     try {
       const newUser = await userService.createUser(userData);
       // O Reqres simula a criação, mas não guarda no backend. Adicionamos localmente para refletir na interface.
-      setUsers((prev) => [{ ...userData, id: newUser.id, avatar: 'https://reqres.in/img/faces/1-image.jpg' }, ...prev]);
+      setUsers((prev) => [{ ...userData, id: newUser.id, avatar: 'https://reqres.in/img/faces/${prev.lenght % 12) + 1}-image.jpg' }, ...prev]);
       return true;
     } catch (err) {
       setError(err.message);
