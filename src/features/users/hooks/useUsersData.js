@@ -23,8 +23,17 @@ export function useUsersData() {
   const addUser = async (userData) => {
     try {
       const newUser = await userService.createUser(userData);
-      // O Reqres simula a criação, mas não guarda no backend. Adicionamos localmente para refletir na interface.
-      setUsers((prev) => [{ ...userData, id: newUser.id, avatar: 'https://reqres.in/img/faces/${prev.lenght % 12) + 1}-image.jpg' }, ...prev]);
+      // Gera um avatar seguro usando as iniciais do nome do estudante.
+      const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(`${userData.first_name} ${userData.last_name}`)}&background=7450cf&color=fff&size=128`;
+
+      setUsers((prev) => [
+        {
+          ...userData,
+          id: newUser.id,
+          avatar: fallbackAvatar,
+        },
+        ...prev,
+      ]);
       return true;
     } catch (err) {
       console.error('Falha ao adicionar:', err);
