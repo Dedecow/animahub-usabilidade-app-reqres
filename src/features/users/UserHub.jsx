@@ -1,10 +1,16 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { useUsersData } from './hooks/useUsersData';
 
 const emptyForm = { first_name: '', last_name: '', email: '', idade: '' };
 
-export default function UserHub({ onActivity }) {
-  const { users, loading, error, addUser, updateUser, deleteUser } = useUsersData();
+export default function UserHub({
+  onActivity,
+  users,
+  loading,
+  error,
+  addUser,
+  updateUser,
+  deleteUser,
+}) {
   const [formData, setFormData] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState('');
@@ -38,15 +44,25 @@ export default function UserHub({ onActivity }) {
     event.preventDefault();
     if (editingId) {
       const updated = await updateUser(editingId, formData);
-      if (updated) onActivity({ type: 'update', title: 'Perfil atualizado', detail: `Os dados de ${formData.first_name} ${formData.last_name} foram atualizados` });
-      showFeedback('Perfil atualizado com sucesso');
+      if (updated) {
+        onActivity({ type: 'update', title: 'Perfil atualizado', detail: `Os dados de ${formData.first_name} ${formData.last_name} foram atualizados` });
+        showFeedback('Perfil atualizado com sucesso');
+        setEditingId(null);
+        setFormData(emptyForm);
+      } else {
+        showFeedback('Não foi possível atualizar o perfil. Tente novamente.');
+      }
     } else {
       const created = await addUser(formData);
-      if (created) onActivity({ type: 'create', title: 'Novo estudante cadastrado', detail: `${formData.first_name} ${formData.last_name} entrou na base acadêmica` });
-      showFeedback('Novo estudante adicionado');
+      if (created) {
+        onActivity({ type: 'create', title: 'Novo estudante cadastrado', detail: `${formData.first_name} ${formData.last_name} entrou na base acadêmica` });
+        showFeedback('Novo estudante adicionado');
+        setEditingId(null);
+        setFormData(emptyForm);
+      } else {
+        showFeedback('Não foi possível adicionar o estudante. Tente novamente.');
+      }
     }
-    setEditingId(null);
-    setFormData(emptyForm);
   };
 
   const handleEdit = (user) => {
@@ -114,7 +130,33 @@ export default function UserHub({ onActivity }) {
             <img src={user.avatar} alt={`Fotografia de ${user.first_name} ${user.last_name}`} />
             <div className="student-details"><strong>{user.first_name} {user.last_name}</strong><span>{user.email}</span></div>
             <span className="active-label"><i aria-hidden="true" />Ativo</span>
-            <div className="row-actions"><button onClick={() => handleEdit(user)} aria-label={`Editar dados de ${user.first_name}`}>Editar</button><button className="delete-button" onClick={() => {             if (window.confirm(`Deseja remover ${user.first_name}?`)) { deleteUser(user.id).then((deleted) => { if (deleted) onActivity({ type: 'delete', title: 'Estudante removido', detail: `${user.first_name} ${user.last_name} foi removido do diretório acadêmico` }); }); showFeedback(`${user.first_name} foi removido`); } }} aria-label={`Excluir ${user.first_name}`}>Excluir</button></div>
+            <div className="row-actions">
+              <button
+                onClick={() => handleEdit(user)}
+                aria-label={`Editar dados de ${user.first_name}`}
+              >
+                Editar
+              </button>
+
+              <button
+                className="delete-button"
+                onClick={() => {
+                  if (window.confirm(`Deseja remover ${user.first_name}?`)) {
+                    deleteUser(user.id).then((deleted) => {
+                      if (deleted) {
+                        onActivity({ type: 'delete', title: 'Estudante removido', detail: `${user.first_name} ${user.last_name} foi removido do diretório acadêmico` });
+                        showFeedback(`${user.first_name} foi removido`);
+                      } else {
+                        showFeedback(`Não foi possível remover ${user.first_name}.`);
+                      }
+                    });
+                  }
+                }}
+                aria-label={`Excluir ${user.first_name}`}
+              >
+                Excluir
+              </button>
+            </div>
           </article>)}</div>}
           {!loading && !error && !visibleUsers.length && <div className="empty-state" role="status">Nenhum estudante encontrado.</div>}
           <div className="list-footer" aria-live="polite"><span>Mostrando {visibleUsers.length ? (page - 1) * pageSize + 1 : 0} a {Math.min(page * pageSize, filteredUsers.length)} de {filteredUsers.length} estudantes</span><nav aria-label="Paginação de estudantes"><button type="button" onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1} aria-label="Página anterior">‹</button>{Array.from({ length: totalPages }, (_, index) => <button type="button" key={index + 1} onClick={() => setPage(index + 1)} className={page === index + 1 ? 'current-page' : ''} aria-current={page === index + 1 ? 'page' : undefined} aria-label={`Página ${index + 1}`}>{index + 1}</button>)}<button type="button" onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages} aria-label="Próxima página">›</button></nav></div>

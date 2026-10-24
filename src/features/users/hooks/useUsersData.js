@@ -8,6 +8,8 @@ export function useUsersData() {
 
   const loadUsers = async () => {
     setLoading(true);
+    setError(null);
+
     try {
       const response = await userService.fetchUsers(1);
       setUsers(response.data || []);
@@ -25,7 +27,7 @@ export function useUsersData() {
       setUsers((prev) => [{ ...userData, id: newUser.id, avatar: 'https://reqres.in/img/faces/${prev.lenght % 12) + 1}-image.jpg' }, ...prev]);
       return true;
     } catch (err) {
-      setError(err.message);
+      console.error('Falha ao adicionar:', err);
       return false;
     }
   };
@@ -36,7 +38,7 @@ export function useUsersData() {
       setUsers((prev) => prev.map(u => (u.id === id ? { ...u, ...userData } : u)));
       return true;
     } catch (err) {
-      setError(err.message);
+      console.error('Falha ao atualizar:', err);
       return false;
     }
   };
@@ -47,7 +49,7 @@ export function useUsersData() {
       setUsers((prev) => prev.filter(u => u.id !== id));
       return true;
     } catch (err) {
-      setError(err.message);
+      console.error('Falha ao remover:', err);
       return false;
     }
   };
