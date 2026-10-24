@@ -105,7 +105,7 @@ export default function UserHub({
         <article className="metric-card"><div className="metric-icon orange" aria-hidden="true">◒</div><div><span>Novos cadastros</span><strong>{users.length}</strong><small><b>↑ 4.2%</b> nos últimos 30 dias</small></div><div className="metric-bars" aria-hidden="true"><i /><i /><i /><i /><i /></div></article>
       </div>
 
-      <div className="workspace-grid" id="students">
+      <div className="workspace-grid">
         <section className="panel form-panel">
           <div className="panel-heading"><div><span className="panel-kicker">{editingId ? 'MODO DE EDIÇÃO' : 'NOVO REGISTRO'}</span><h2>{editingId ? 'Editar estudante' : 'Adicionar estudante'}</h2></div><span className="form-step">01 <i /> 02</span></div>
           <p className="panel-description">Crie um perfil para acompanhar a jornada acadêmica.</p>

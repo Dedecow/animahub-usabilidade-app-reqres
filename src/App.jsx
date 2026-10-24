@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { DemoModeProvider } from './context/DemoModeContext';
-import UserHub from './features/users/UserHub';
-import AdminDashboard from './AdminDashboard';
+import Overview from './pages/Overview';
+import StudentsPage from './pages/StudentsPage';
+import ActivityPage from './pages/ActivityPage';
 import { useUsersData } from './features/users/hooks/useUsersData';
 import './App.css';
 
@@ -22,33 +23,12 @@ const initialActivityItems = [
   { id: 'seed-delete', type: 'delete', title: 'Estudante removido', detail: 'Um perfil foi removido do diretório acadêmico', time: 'Ontem, 14:08', icon: '−' },
 ];
 
-function ActivityCenter({ activities, onNavigate }) {
-  const [filter, setFilter] = useState('all');
-  const [lastUpdated, setLastUpdated] = useState(() => Date.now());
-  const filters = [{ key: 'all', label: 'Todas' }, { key: 'create', label: 'Cadastros' }, { key: 'update', label: 'Atualizações' }, { key: 'delete', label: 'Exclusões' }, { key: 'sync', label: 'Sincronizações' }];
-  const filteredItems = filter === 'all' ? activities : activities.filter((item) => item.type === filter);
-
-  useEffect(() => {
-    const interval = window.setInterval(() => setLastUpdated(Date.now()), 1000);
-    return () => window.clearInterval(interval);
-  }, []);
-
-  return (
-    <section className="activity-center" id="activity" aria-labelledby="activity-title">
-      <div className="activity-heading">
-        <div><span className="panel-kicker">CENTRAL DE ATIVIDADES</span><h2 id="activity-title">O que está acontecendo</h2><p>Acompanhe as movimentações recentes da sua comunidade acadêmica.</p></div>
-        <span className="activity-live"><i aria-hidden="true" />{lastUpdated ? 'Atualizado em tempo real' : 'Atualizado agora'}</span>
-      </div>
-      <div className="activity-toolbar" role="group" aria-label="Filtrar atividades">{filters.map((item) => <button key={item.key} type="button" aria-pressed={filter === item.key} className={filter === item.key ? 'selected' : ''} onClick={() => setFilter(item.key)}>{item.label}</button>)}</div>
-      <div className="activity-list" aria-live="polite" aria-relevant="additions text">{filteredItems.map((item) => <article className={`activity-item activity-${item.type}`} key={item.id}><span className="activity-icon" aria-hidden="true">{item.icon}</span><div><strong>{item.title}</strong><p>{item.detail}</p></div><time>{item.time}</time></article>)}</div>
-      {!filteredItems.length && <div className="activity-empty" role="status">Nenhuma atividade nesta categoria.</div>}
-      <div className="activity-footer"><span>Exibindo as últimas movimentações</span><button type="button" onClick={() => onNavigate('students')}>Ir para estudantes <b aria-hidden="true">→</b></button></div>
-    </section>
-  );
-}
-
 export default function App() {
-  const [activeSection, setActiveSection] = useState('overview');
+  const [activeSection, setActiveSection] = useState(() =>
+    ['overview', 'students', 'activity'].includes(window.location.hash.slice(1))
+      ? window.location.hash.slice(1)
+      : 'overview'
+  );
   const [notice, setNotice] = useState('');
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [readingMode, setReadingMode] = useState(false);
@@ -58,6 +38,25 @@ export default function App() {
     overview: 'Visão geral',
     students: 'Estudantes',
     activity: 'Atividade'
+  };
+
+  useEffect(() => {
+    const syncSectionWithHash = () => {
+      const section = window.location.hash.slice(1);
+      if (['overview', 'students', 'activity'].includes(section)) {
+        setActiveSection(section);
+      }
+    };
+
+    window.addEventListener('hashchange', syncSectionWithHash);
+    return () => window.removeEventListener('hashchange', syncSectionWithHash);
+  }, []);
+
+  const navigateToSection = (section) => {
+    setActiveSection(section);
+    if (window.location.hash !== `#${section}`) {
+      window.location.hash = section;
+    }
   };
 
   const showNotice = (message) => {
@@ -83,9 +82,9 @@ export default function App() {
           </div>
 
           <nav className="main-nav" aria-label="Navegação principal">
-            <a className={`nav-item ${activeSection === 'overview' ? 'active' : ''}`} href="#overview" aria-label="Visão geral" aria-current={activeSection === 'overview' ? 'page' : undefined} onClick={() => setActiveSection('overview')}><span className="nav-icon" aria-hidden="true">◈</span>Visão geral</a>
-            <a className={`nav-item ${activeSection === 'students' ? 'active' : ''}`} href="#students" aria-label="Estudantes" aria-current={activeSection === 'students' ? 'page' : undefined} onClick={() => setActiveSection('students')}><span className="nav-icon" aria-hidden="true">◎</span>Estudantes</a>
-            <a className={`nav-item ${activeSection === 'activity' ? 'active' : ''}`} href="#activity" aria-label="Atividade" aria-current={activeSection === 'activity' ? 'page' : undefined} onClick={(event) => { event.preventDefault(); setActiveSection('activity'); }}><span className="nav-icon" aria-hidden="true">◒</span>Atividade</a>
+            <a className={`nav-item ${activeSection === 'overview' ? 'active' : ''}`} href="#overview" aria-label="Visão geral" aria-current={activeSection === 'overview' ? 'page' : undefined}><span className="nav-icon" aria-hidden="true">◈</span>Visão geral</a>
+            <a className={`nav-item ${activeSection === 'students' ? 'active' : ''}`} href="#students" aria-label="Estudantes" aria-current={activeSection === 'students' ? 'page' : undefined}><span className="nav-icon" aria-hidden="true">◎</span>Estudantes</a>
+            <a className={`nav-item ${activeSection === 'activity' ? 'active' : ''}`} href="#activity" aria-label="Atividade" aria-current={activeSection === 'activity' ? 'page' : undefined}><span className="nav-icon" aria-hidden="true">◒</span>Atividade</a>
           </nav>
 
           <div className="sidebar-bottom">
@@ -112,7 +111,7 @@ export default function App() {
               <button className="avatar-button" onClick={() => showNotice('Perfil de Estudantes')} aria-label="Abrir perfil">ES</button>
             </div>
           </header>
-          <section className="page-content" id="overview" aria-labelledby="page-title">
+          <div className="page-content">
             {activeSection !=='overview' && (
             <div className="welcome-row">
               <div><h1 id="page-title">{activeSection === 'activity' ? 'Atividade' : 'Estudantes'} <span aria-hidden="true">✦</span></h1><p className="subtitle">{activeSection === 'activity' ? 'Acompanhe as movimentações da sua comunidade acadêmica.' : 'Acompanhe o pulso da sua comunidade acadêmica.'}</p></div>
@@ -120,17 +119,17 @@ export default function App() {
             </div>
             )}
             {activeSection === 'overview' && (
-  <AdminDashboard
+  <Overview
     users={userData.users}
     loading={userData.loading}
     error={userData.error}
     activities={activities}
-    onNavigate={setActiveSection}
+    onNavigate={navigateToSection}
   />
 )}
 
 {activeSection === 'students' && (
-  <UserHub
+  <StudentsPage
     users={userData.users}
     loading={userData.loading}
     error={userData.error}
@@ -142,12 +141,12 @@ export default function App() {
 )}
 
 {activeSection === 'activity' && (
-  <ActivityCenter
+  <ActivityPage
     activities={activities}
-    onNavigate={setActiveSection}
+    onNavigate={navigateToSection}
   />
 )}
-          </section>
+          </div>
           {notice && <div className="global-notice" role="status">{notice}</div>}
         </main>
       </div>

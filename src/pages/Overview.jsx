@@ -1,7 +1,6 @@
 import React from 'react';
-import './App.css';
 
-export default function AdminDashboard({
+export default function Overview({
   users,
   loading,
   error,
@@ -11,7 +10,7 @@ export default function AdminDashboard({
   const recentActivities = activities.slice(0, 4);
 
   return (
-    <section className="admin-dashboard" aria-labelledby="admin-title">
+    <section className="admin-dashboard" id="overview" aria-labelledby="admin-title">
       <div className="welcome-row">
         <div>
           <h1 id="admin-title">
