@@ -133,6 +133,14 @@ html.high-contrast .app-shell :focus-visible {
 .admin-summary {
   min-width: 0;
   max-width: 100%;
+  padding: 1.75rem; /* Adiciona o respiro interno no padrão do sistema */
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-summary .admin-actions,
+.admin-summary .activity-footer {
+  margin-top: auto; /* Empurra os botões e rodapés sempre para o fundo do card */
 }
 
 .admin-summary .activity-item > div {

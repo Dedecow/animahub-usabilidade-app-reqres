@@ -54,6 +54,11 @@ export default function App() {
   const [readingMode, setReadingMode] = useState(false);
   const [activities, setActivities] = useState(initialActivityItems);
   const userData = useUsersData();
+  const sectionNames = {
+    overview: 'Visão geral',
+    students: 'Estudantes',
+    activity: 'Atividade'
+  };
 
   const showNotice = (message) => {
     setNotice(message);
@@ -94,8 +99,7 @@ export default function App() {
 
         <main className="content-area" id="main-content" tabIndex="-1">
           <header className="topbar">
-            <div className="breadcrumb"><span>Workspace</span><b>/</b><strong>Visão geral</strong></div>
-            <div className="top-actions">
+            <div className="breadcrumb"><span>Workspace</span><b>/</b><strong>{sectionNames[activeSection]}</strong></div>            <div className="top-actions">
               <button className="reading-mode-toggle" type="button" aria-pressed={readingMode} onClick={() => setReadingMode((enabled) => !enabled)}>Modo de leitura</button>
               <div className="notification-wrap">
                 <button className={`icon-button ${notificationsOpen ? 'is-open' : ''}`} onClick={() => setNotificationsOpen(!notificationsOpen)} aria-label="Abrir notificações" aria-expanded={notificationsOpen} aria-controls={notificationsOpen ? 'notification-panel' : undefined}>
