@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 export default function ActivityPage({ activities, onNavigate }) {
   const [filter, setFilter] = useState('all');
-  const [lastUpdated, setLastUpdated] = useState(() => Date.now());
   const filters = [
     { key: 'all', label: 'Todas' },
     { key: 'create', label: 'Cadastros' },
@@ -14,11 +13,7 @@ export default function ActivityPage({ activities, onNavigate }) {
     filter === 'all'
       ? activities
       : activities.filter((item) => item.type === filter);
-
-  useEffect(() => {
-    const interval = window.setInterval(() => setLastUpdated(Date.now()), 1000);
-    return () => window.clearInterval(interval);
-  }, []);
+  const activeFilterLabel = filters.find((item) => item.key === filter).label;
 
   return (
     <section
@@ -36,7 +31,7 @@ export default function ActivityPage({ activities, onNavigate }) {
         </div>
         <span className="activity-live">
           <i aria-hidden="true" />
-          {lastUpdated ? 'Atualizado em tempo real' : 'Atualizado agora'}
+          Atualizado em tempo real
         </span>
       </div>
       <div
@@ -56,11 +51,12 @@ export default function ActivityPage({ activities, onNavigate }) {
           </button>
         ))}
       </div>
-      <div
-        className="activity-list"
-        aria-live="polite"
-        aria-relevant="additions text"
-      >
+      <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        Exibindo {filteredItems.length}{' '}
+        {filteredItems.length === 1 ? 'atividade' : 'atividades'} para o filtro{' '}
+        {activeFilterLabel}.
+      </p>
+      <div className="activity-list">
         {filteredItems.map((item) => (
           <article
             className={`activity-item activity-${item.type}`}
@@ -73,12 +69,12 @@ export default function ActivityPage({ activities, onNavigate }) {
               <strong>{item.title}</strong>
               <p>{item.detail}</p>
             </div>
-            <time>{item.time}</time>
+            <span className="activity-time">{item.time}</span>
           </article>
         ))}
       </div>
       {!filteredItems.length && (
-        <div className="activity-empty" role="status">
+        <div className="activity-empty">
           Nenhuma atividade nesta categoria.
         </div>
       )}

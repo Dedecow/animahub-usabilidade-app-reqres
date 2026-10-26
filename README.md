@@ -19,6 +19,23 @@ Abra `http://127.0.0.1:5173` no navegador.
 | `npm run build` | Gera a versão de produção |
 | `npm run preview` | Executa a versão de produção localmente |
 | `npm run lint` | Verifica o código com Oxlint |
+| `npm run test:e2e` | Executa testes E2E de acessibilidade com Playwright e axe |
+
+## Testes E2E de acessibilidade
+
+Instale o navegador Chromium do Playwright uma vez por ambiente:
+
+```bash
+npx playwright install chromium
+```
+
+Execute a auditoria com o servidor Vite iniciado automaticamente pelos testes:
+
+```bash
+npm run test:e2e
+```
+
+Os testes usam `@axe-core/playwright` para verificar WCAG 2.0/2.1 A e AA na página inicial, no Modo Leitura, em viewport móvel, na Central de Atividades e com o painel de notificações aberto. Violações fazem o comando terminar com código diferente de zero. O workflow `.github/workflows/accessibility-ci.yml` executa os testes em pushes e pull requests para `main`.
 
 ## Funcionalidades
 
@@ -72,6 +89,7 @@ O serviço está em [`src/services/userService.js`](./src/services/userService.j
 ```bash
 npm run build
 npm run lint
+npm run test:e2e
 ```
 
 O lint pode apresentar avisos preexistentes relacionados ao Fast Refresh e ao carregamento inicial via efeito; eles não impedem a execução ou o build.

@@ -123,15 +123,16 @@ export default function UserHub({
           <div className="list-header"><div><span className="panel-kicker">DIRETÓRIO ACADÊMICO</span><h2>Estudantes <em>{filteredUsers.length}</em></h2></div><div className="menu-wrap"><button className="filter-button" type="button" ref={filterButtonRef} onClick={() => setFilterOpen(!filterOpen)} aria-expanded={filterOpen} aria-controls={filterOpen ? 'student-filter-options' : undefined}>Filtrar: {statusFilter} <span aria-hidden="true">⌄</span></button>{filterOpen && <div className="floating-menu" id="student-filter-options" role="group" aria-label="Filtro de estudantes" onKeyDown={(event) => { if (event.key === 'Escape') { setFilterOpen(false); filterButtonRef.current?.focus(); } }}><button type="button" onClick={() => chooseFilter('Todos')}>Todos os estudantes</button><button type="button" onClick={() => chooseFilter('Ativos')}>Ativos agora</button></div>}</div></div>
           <div className="search-box"><span aria-hidden="true">⌕</span><label className="sr-only" htmlFor="student-search">Buscar estudantes por nome ou e-mail</label><input id="student-search" type="search" value={search} onChange={updateSearch} placeholder="Buscar por nome ou e-mail..." /></div>
           <div className="list-meta"><span>{visibleUsers.length} de {filteredUsers.length} perfis encontrados</span><div className="menu-wrap"><button type="button" ref={sortButtonRef} onClick={() => setSortOpen(!sortOpen)} aria-label="Ordenar estudantes" aria-expanded={sortOpen} aria-controls={sortOpen ? 'student-sort-options' : undefined}>{sortOrder === 'nome' ? 'Nome' : 'Mais recentes'} <span aria-hidden="true">⌄</span></button>{sortOpen && <div className="floating-menu sort-menu" id="student-sort-options" role="group" aria-label="Ordenação dos estudantes" onKeyDown={(event) => { if (event.key === 'Escape') { setSortOpen(false); sortButtonRef.current?.focus(); } }}><button type="button" onClick={() => chooseSort('recentes')}>Mais recentes</button><button type="button" onClick={() => chooseSort('nome')}>Ordem alfabética</button></div>}</div></div>
-          {feedbackMsg && <div className="feedback" aria-live="polite"><span aria-hidden="true">✓</span>{feedbackMsg}</div>}
+          <div className={`feedback${feedbackMsg ? '' : ' sr-only'}`} role="status" aria-live="polite" aria-atomic="true">{feedbackMsg && <><span aria-hidden="true">✓</span>{feedbackMsg}</>}</div>
           {loading && <div className="loading-state" role="status"><span className="loader" aria-hidden="true" />Carregando estudantes</div>}
           {error && <div className="error-state" role="alert">Não foi possível carregar os dados: {error}</div>}
           {!loading && !error && <div className="student-list">{visibleUsers.map((user, index) => <article className="student-row" key={user.id} style={{ '--delay': `${index * 60}ms` }}>
-            <img src={user.avatar} alt={`Fotografia de ${user.first_name} ${user.last_name}`} />
+            <img src={user.avatar} alt={`Avatar de ${user.first_name} ${user.last_name}`} />
             <div className="student-details"><strong>{user.first_name} {user.last_name}</strong><span>{user.email}</span></div>
             <span className="active-label"><i aria-hidden="true" />Ativo</span>
             <div className="row-actions">
               <button
+                type="button"
                 onClick={() => handleEdit(user)}
                 aria-label={`Editar dados de ${user.first_name}`}
               >
@@ -140,6 +141,7 @@ export default function UserHub({
 
               <button
                 className="delete-button"
+                type="button"
                 onClick={() => {
                   if (window.confirm(`Deseja remover ${user.first_name}?`)) {
                     deleteUser(user.id).then((deleted) => {
@@ -159,7 +161,7 @@ export default function UserHub({
             </div>
           </article>)}</div>}
           {!loading && !error && !visibleUsers.length && <div className="empty-state" role="status">Nenhum estudante encontrado.</div>}
-          <div className="list-footer" aria-live="polite"><span>Mostrando {visibleUsers.length ? (page - 1) * pageSize + 1 : 0} a {Math.min(page * pageSize, filteredUsers.length)} de {filteredUsers.length} estudantes</span><nav aria-label="Paginação de estudantes"><button type="button" onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1} aria-label="Página anterior">‹</button>{Array.from({ length: totalPages }, (_, index) => <button type="button" key={index + 1} onClick={() => setPage(index + 1)} className={page === index + 1 ? 'current-page' : ''} aria-current={page === index + 1 ? 'page' : undefined} aria-label={`Página ${index + 1}`}>{index + 1}</button>)}<button type="button" onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages} aria-label="Próxima página">›</button></nav></div>
+          <div className="list-footer"><span role="status" aria-live="polite" aria-atomic="true">Mostrando {visibleUsers.length ? (page - 1) * pageSize + 1 : 0} a {Math.min(page * pageSize, filteredUsers.length)} de {filteredUsers.length} estudantes</span><nav aria-label="Paginação de estudantes"><button type="button" onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1} aria-label="Página anterior">‹</button>{Array.from({ length: totalPages }, (_, index) => <button type="button" key={index + 1} onClick={() => setPage(index + 1)} className={page === index + 1 ? 'current-page' : ''} aria-current={page === index + 1 ? 'page' : undefined} aria-label={`Página ${index + 1}`}>{index + 1}</button>)}<button type="button" onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages} aria-label="Próxima página">›</button></nav></div>
         </section>
       </div>
     </div>

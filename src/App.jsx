@@ -112,19 +112,19 @@ export default function App() {
           </div>
         </aside>
 
-        <main className="content-area" id="main-content" tabIndex="-1">
+        <main className="content-area" id="main-content" aria-label={sectionNames[activeSection]} tabIndex="-1">
           <header className="topbar">
             <div className="breadcrumb"><span>Workspace</span><b>/</b><strong>{sectionNames[activeSection]}</strong></div>            <div className="top-actions">
               <button className="reading-mode-toggle" type="button" aria-pressed={readingMode} onClick={() => setReadingMode((enabled) => !enabled)}>Modo de leitura</button>
               <div className="notification-wrap">
-                <button className={`icon-button ${notificationsOpen ? 'is-open' : ''}`} onClick={() => setNotificationsOpen(!notificationsOpen)} aria-label="Abrir notificações" aria-expanded={notificationsOpen} aria-controls={notificationsOpen ? 'notification-panel' : undefined}>
+                <button className={`icon-button ${notificationsOpen ? 'is-open' : ''}`} type="button" onClick={() => setNotificationsOpen(!notificationsOpen)} aria-label="Abrir notificações" aria-expanded={notificationsOpen} aria-controls={notificationsOpen ? 'notification-panel' : undefined}>
                   <span className="bell-surface">
                     <svg className="bell-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg>
                   </span>
                 </button>
                 {notificationsOpen && <div className="notification-panel" id="notification-panel" role="status"><span className="notification-panel-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg></span><strong>Nenhuma notificação</strong><p>Você está em dia por aqui.</p></div>}
               </div>
-              <button className="avatar-button" onClick={() => showNotice('Perfil de Estudantes')} aria-label="Abrir perfil">ES</button>
+              <button className="avatar-button" type="button" onClick={() => showNotice('Perfil de Estudantes')}><span aria-hidden="true">ES</span><span className="sr-only">Abrir perfil de Estudantes</span></button>
             </div>
           </header>
           <div className="page-content">
@@ -163,7 +163,7 @@ export default function App() {
   />
 )}
           </div>
-          {notice && <div className="global-notice" role="status">{notice}</div>}
+          <div className={`global-notice${notice ? '' : ' sr-only'}`} role="status" aria-live="polite" aria-atomic="true">{notice}</div>
         </main>
       </div>
     </DemoModeProvider>

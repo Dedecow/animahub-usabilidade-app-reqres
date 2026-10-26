@@ -136,7 +136,7 @@ export default function Overview({
                     <p>{activity.detail}</p>
                   </div>
 
-                  <time>{activity.time}</time>
+                  <span className="activity-time">{activity.time}</span>
                 </article>
               ))}
             </div>
