@@ -24,6 +24,9 @@ const initialActivityItems = [
 ];
 
 export default function App() {
+  const [isMobileDevice, setIsMobileDevice] = useState(() => (
+    window.matchMedia('(max-width: 767px), (pointer: coarse) and (max-width: 1024px)').matches
+  ));
   const [activeSection, setActiveSection] = useState(() =>
     ['overview', 'students', 'activity'].includes(window.location.hash.slice(1))
       ? window.location.hash.slice(1)
@@ -41,6 +44,13 @@ export default function App() {
   };
 
   useEffect(() => {
+    const mobileQuery = window.matchMedia('(max-width: 767px), (pointer: coarse) and (max-width: 1024px)');
+    const syncDeviceType = () => setIsMobileDevice(mobileQuery.matches);
+    mobileQuery.addEventListener('change', syncDeviceType);
+    return () => mobileQuery.removeEventListener('change', syncDeviceType);
+  }, []);
+
+  useEffect(() => {
     const syncSectionWithHash = () => {
       const section = window.location.hash.slice(1);
       if (['overview', 'students', 'activity'].includes(section)) {
@@ -55,8 +65,14 @@ export default function App() {
   const navigateToSection = (section) => {
     setActiveSection(section);
     if (window.location.hash !== `#${section}`) {
-      window.location.hash = section;
+      window.history.replaceState(null, '', `#${section}`);
     }
+  };
+
+  const handleSectionNavigation = (event, section) => {
+    event.preventDefault();
+    navigateToSection(section);
+    document.getElementById('main-content')?.focus({ preventScroll: true });
   };
 
   const showNotice = (message) => {
@@ -70,7 +86,7 @@ export default function App() {
 
   return (
     <DemoModeProvider>
-      <div className={`app-shell${readingMode ? ' reading-mode' : ''}`}>
+      <div className={`app-shell${readingMode ? ' reading-mode' : ''}`} data-device={isMobileDevice ? 'mobile' : 'desktop'}>
         <a className="skip-link" href="#main-content">Pular para o conteúdo principal</a>
         <aside className="sidebar" aria-label="Barra lateral">
           <div className="brand">
@@ -82,9 +98,9 @@ export default function App() {
           </div>
 
           <nav className="main-nav" aria-label="Navegação principal">
-            <a className={`nav-item ${activeSection === 'overview' ? 'active' : ''}`} href="#overview" aria-label="Visão geral" aria-current={activeSection === 'overview' ? 'page' : undefined}><span className="nav-icon" aria-hidden="true">◈</span>Visão geral</a>
-            <a className={`nav-item ${activeSection === 'students' ? 'active' : ''}`} href="#students" aria-label="Estudantes" aria-current={activeSection === 'students' ? 'page' : undefined}><span className="nav-icon" aria-hidden="true">◎</span>Estudantes</a>
-            <a className={`nav-item ${activeSection === 'activity' ? 'active' : ''}`} href="#activity" aria-label="Atividade" aria-current={activeSection === 'activity' ? 'page' : undefined}><span className="nav-icon" aria-hidden="true">◒</span>Atividade</a>
+            <a className={`nav-item ${activeSection === 'overview' ? 'active' : ''}`} href="#overview" aria-label="Visão geral" aria-current={activeSection === 'overview' ? 'page' : undefined} onClick={(event) => handleSectionNavigation(event, 'overview')}><span className="nav-icon" aria-hidden="true">◈</span>Visão geral</a>
+            <a className={`nav-item ${activeSection === 'students' ? 'active' : ''}`} href="#students" aria-label="Estudantes" aria-current={activeSection === 'students' ? 'page' : undefined} onClick={(event) => handleSectionNavigation(event, 'students')}><span className="nav-icon" aria-hidden="true">◎</span>Estudantes</a>
+            <a className={`nav-item ${activeSection === 'activity' ? 'active' : ''}`} href="#activity" aria-label="Atividade" aria-current={activeSection === 'activity' ? 'page' : undefined} onClick={(event) => handleSectionNavigation(event, 'activity')}><span className="nav-icon" aria-hidden="true">◒</span>Atividade</a>
           </nav>
 
           <div className="sidebar-bottom">

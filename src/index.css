@@ -28,6 +28,7 @@ body {
   min-width: 20rem;
   min-height: 100%;
   background: var(--color-canvas);
+  overscroll-behavior: none;
 }
 
 body {
