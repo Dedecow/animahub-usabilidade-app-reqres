@@ -11,6 +11,8 @@ npm run dev
 
 Abra `http://127.0.0.1:5173` no navegador.
 
+Github Pages : [https://dedecow.github.io/animahub-usabilidade-app-reqres/#overview](https://dedecow.github.io/animahub-usabilidade-app-reqres/#overview)
+
 ## Scripts
 
 | Comando | Descrição |
